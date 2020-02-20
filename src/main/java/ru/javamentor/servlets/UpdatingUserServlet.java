@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static ru.javamentor.service.ServiceCrudDao.db;
-
 @WebServlet("/admin/updateUser")
 public class UpdatingUserServlet extends HttpServlet {
     private Long id;
@@ -33,13 +31,7 @@ public class UpdatingUserServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         ServiceFactory serviceFactory = new ServiceFactory();
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream(getServletContext().getRealPath("/WEB-INF/classes/db.properties")));
-        } catch (IOException e) {
-            throw new IllegalArgumentException();
-        }
-        serviceCrudDao = serviceFactory.getServiceCrudDao(db, properties);
+        serviceCrudDao = serviceFactory.getServiceCrudDao();
     }
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

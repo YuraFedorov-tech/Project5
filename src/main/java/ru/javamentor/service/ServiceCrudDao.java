@@ -10,6 +10,5 @@ import ru.javamentor.DAO.CrudDAO;
  *
  */
 public interface ServiceCrudDao<T> extends CrudDAO<T> {
-//String db="JDBC";
-String db="Hibernate";
+
 }

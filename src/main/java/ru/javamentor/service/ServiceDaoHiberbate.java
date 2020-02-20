@@ -18,62 +18,52 @@ import java.util.List;
 
 public class ServiceDaoHiberbate implements ServiceCrudDao<User> {
     private static ServiceDaoHiberbate serviceDaoHiberbate;
-    private SessionFactory sessionFactory;
-
+    private static UserDaoHiberbate userDaoHiberbate;
+    private static SessionFactory sessionFactory;
 
     private ServiceDaoHiberbate(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
 
+
+
     public static ServiceDaoHiberbate getInstance() {
         if (serviceDaoHiberbate == null) {
-            DBConnection dbConnection=DBConnection.getInstance();
+            DBConnection dbConnection = DBConnection.getInstance();
             serviceDaoHiberbate = new ServiceDaoHiberbate(dbConnection.getSessionFactory());
+            userDaoHiberbate= UserDaoHiberbate.getInstance( sessionFactory);
         }
         return serviceDaoHiberbate;
     }
 
     @Override
-    public List<User> findAll() {
-        Session session = sessionFactory.openSession();
-        List<User> cars = new UserDaoHiberbate(session).findAll();
-        session.close();
-        return cars;
-    }
-
-    @Override
     public User findAtPasswordAndName(String name, String password) {
-        Session  session =sessionFactory.openSession();
-        User user = new UserDaoHiberbate(session).findAtPasswordAndName(name, password);
-        session.close();
+        User user = userDaoHiberbate.findAtPasswordAndName(name, password);
         return user;
     }
 
     @Override
+    public List<User> findAll() {
+        List<User> cars = userDaoHiberbate.findAll();
+        return cars;
+    }
+    @Override
     public void save(User user) {
-        Session session = sessionFactory.openSession();
-        new UserDaoHiberbate(session).save(user);
-        session.close();
+        userDaoHiberbate.save(user);
     }
 
     @Override
     public void delete(Long id) {
-        Session session = sessionFactory.openSession();
-        new UserDaoHiberbate(session).delete(id);
-        session.close();
+        userDaoHiberbate.delete(id);
     }
+
     @Override
     public User find(Long id) {
-        Session  session =sessionFactory.openSession();
-        User user = new UserDaoHiberbate(session).find(id);
-        session.close();
-        return user;
+        return userDaoHiberbate.find(id);
     }
+
     @Override
     public void update(User user) {
-        Session session = sessionFactory.openSession();
-        new UserDaoHiberbate(session).update(user);
-        session.close();
-
+        userDaoHiberbate.update(user);
     }
 }

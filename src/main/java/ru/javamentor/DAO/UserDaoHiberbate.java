@@ -7,24 +7,35 @@ package ru.javamentor.DAO;
  *
  */
 
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import ru.javamentor.model.User;
+import ru.javamentor.service.ServiceDaoHiberbate;
+import ru.javamentor.util.DBConnection;
 
 import java.util.List;
 
 public class UserDaoHiberbate implements CrudDAO<User> {
-    private Session session;
-    //language=HQL
+    private static SessionFactory sessionFactory;
+    private static UserDaoHiberbate userDaoHiberbate;
+
     private final String HQL_UPDATE = "update User set name=:name ,password=:password, age=:age, role=:role where id = :id  ";
 
-    public UserDaoHiberbate(Session session) {
-        this.session = session;
+    private UserDaoHiberbate(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
-
+    public static UserDaoHiberbate getInstance(SessionFactory sessionFactory) {
+        if (userDaoHiberbate == null) {
+            userDaoHiberbate=new UserDaoHiberbate( sessionFactory);
+        }
+        return userDaoHiberbate;
+    }
     @Override
     public User findAtPasswordAndName(String name, String password) {
+        Session session = sessionFactory.openSession();
         Query query = session.createQuery("from User where name =:name and password=:password ");
         query.setParameter("name",name);
         query.setParameter("password",password);
@@ -34,41 +45,56 @@ public class UserDaoHiberbate implements CrudDAO<User> {
     }
     @Override
     public User find(Long id) {
-        Query query = session.createQuery("from User where id = '" + id + "' ");
-        return (User) query.getSingleResult();
+        Session session = sessionFactory.openSession();
+        return session.byId(User.class).load(id);
     }
 
     @Override
     public void save(User model) {
+        Session session = sessionFactory.openSession();
         session.save(model);
+        session.close();
     }
 
     @Override
     public void update(User model) {
+        Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         int age9 = model.getAge();
-        Query query = session.createQuery(HQL_UPDATE);
-        query.setParameter("name", model.getName());
-        query.setParameter("password", model.getPassword());
-        query.setParameter("id", model.getId());
-        query.setParameter("age", age9);
-        query.setParameter("role", model.getRole());
-        int result = query.executeUpdate();
-        transaction.commit();
+        try {
+            Query query = session.createQuery("update User set name=:name ,password=:password, age=:age where id = :id  ");
+            query.setParameter("name", model.getName());
+            query.setParameter("password", model.getPassword());
+            query.setParameter("id", model.getId());
+            query.setParameter("age", age9);
+            int result = query.executeUpdate();
+            transaction.commit();
+        } catch (HibernateException he) {
+            transaction.rollback();
+        } finally {
+            session.close();
+        }
     }
 
     @Override
     public void delete(Long id) {
+        Session session = sessionFactory.openSession();
         String hql = "DELETE User WHERE id = :id";
         Transaction transaction = session.beginTransaction();
-        Query query = session.createQuery(hql);
-        query.setParameter("id", id);
-        int rows = query.executeUpdate();
-        transaction.commit();
+        try {
+            Query query = session.createQuery(hql);
+            query.setParameter("id", id);
+            int rows = query.executeUpdate();
+            transaction.commit();
+        } catch (HibernateException he) {
+            transaction.rollback();
+        } finally {
+            session.close();
+        }
     }
-
     @Override
     public List<User> findAll() {
+        Session session = sessionFactory.openSession();
         Query query = session.createQuery("FROM User");
         List<User> users = query.list();
         return users;

@@ -15,14 +15,14 @@ public class User {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @Column(name = "name")
-    String name;
+    private String name;
     @Column(name = "password")
-    String password;
+    private String password;
     @Column(name = "age")
-    int age;
+    private int age;
 
     public User(String name, String password, int age, String role) {
         this.name = name;
@@ -30,19 +30,20 @@ public class User {
         this.age = age;
         this.role = role;
     }
-    public User(Long id,String name, String password, int age, String role) {
+
+    public User(Long id, String name, String password, int age, String role) {
         this.name = name;
         this.password = password;
         this.age = age;
         this.role = role;
-        this.id=id;
+        this.id = id;
     }
+
     @Column(name = "role")
     String role;
 
     public User() {
     }
-
 
 
     public Long getId() {

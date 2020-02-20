@@ -21,7 +21,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import static ru.javamentor.service.ServiceCrudDao.db;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
@@ -30,14 +29,7 @@ public class LoginServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         ServiceFactory serviceFactory = new ServiceFactory();
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream(getServletContext().getRealPath("/WEB-INF/classes/db.properties")));
-        } catch (IOException e) {
-            throw new IllegalArgumentException();
-        }
-        serviceCrudDao = serviceFactory.getServiceCrudDao(db, properties);
-        // serviceCrudDao = serviceFactory.getServiceCrudDao("JDBC", properties);
+        serviceCrudDao = serviceFactory.getServiceCrudDao();
     }
 
     @Override
@@ -55,13 +47,11 @@ public class LoginServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath()+"/login");
         }
         HttpSession    session = req.getSession();
-
+        session.setAttribute("user", user);
         if(user.getRole().equals("user")){
-            session.setAttribute("user", name);
-            resp.getWriter().write("good day user "+name+" you are loginned");
+            resp.getWriter().write("good day User "+name+" you are loginned");
         }else{
-            session.setAttribute("admin", name);
-            resp.getWriter().write("good day admin "+name+" you can start working");
+            resp.getWriter().write("good day Admin "+name+" you can start working");
         }
 
 

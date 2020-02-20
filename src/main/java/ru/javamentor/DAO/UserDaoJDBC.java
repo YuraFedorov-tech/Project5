@@ -78,26 +78,53 @@ public class UserDaoJDBC implements CrudDAO<User> {
 
     @Override
     public void save(User model) {
+
+
+
+
         try {
+            connection.setAutoCommit(false);
             PreparedStatement preparedStatement = connection.prepareStatement(ADD_MODEL);
             preparedStatement.setString(1, model.getName());
             preparedStatement.setString(2, model.getPassword());
             preparedStatement.setInt(3, model.getAge());
             preparedStatement.setString(4, model.getRole());
             preparedStatement.execute();
-        } catch (SQLException e) {
-            throw new IllegalArgumentException();
+        }catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void delete(Long id) {
+        PreparedStatement preparedStatement = null;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(DELETE_MODEL);
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(DELETE_MODEL);
             preparedStatement.setLong(1, id);
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new IllegalArgumentException();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
 
     }
@@ -105,6 +132,7 @@ public class UserDaoJDBC implements CrudDAO<User> {
     @Override
     public void update(User model) {
         try {
+            connection.setAutoCommit(false);
             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_MODEL);
             preparedStatement.setString(1, model.getName());
             preparedStatement.setString(2, model.getPassword());
@@ -113,9 +141,18 @@ public class UserDaoJDBC implements CrudDAO<User> {
             preparedStatement.setLong(5, model.getId());
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new IllegalArgumentException();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
-
     }
 
 

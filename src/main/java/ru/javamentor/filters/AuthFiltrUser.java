@@ -32,7 +32,6 @@ public class AuthFiltrUser implements Filter {
 //       если сессия не была, или у сессии отсутствует атрибут user, перенаправляем пользователя на страницу с логином
 
         if (session == null || session.getAttribute("user") == null) {
-            if(session!=null && session.getAttribute("admin") == null)
             servletRequest.getServletContext().getRequestDispatcher("/login").forward(req, resp);
         }
 //        // отдаем запрос дальше в цепочку фильтров

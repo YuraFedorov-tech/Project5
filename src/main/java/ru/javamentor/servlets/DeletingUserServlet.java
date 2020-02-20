@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static ru.javamentor.service.ServiceCrudDao.db;
 
 @WebServlet("/admin/deleteUser")
 public class DeletingUserServlet extends HttpServlet {
@@ -32,14 +31,7 @@ public class DeletingUserServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         ServiceFactory serviceFactory = new ServiceFactory();
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream(getServletContext().getRealPath("/WEB-INF/classes/db.properties")));
-        } catch (IOException e) {
-            throw new IllegalArgumentException();
-        }
-        serviceCrudDao = serviceFactory.getServiceCrudDao(db, properties);
-        // serviceCrudDao = serviceFactory.getServiceCrudDao("JDBC", properties);
+        serviceCrudDao = serviceFactory.getServiceCrudDao();
     }
 
     @Override
@@ -51,16 +43,17 @@ public class DeletingUserServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String[] items = req.getParameterValues("Delete");
 //assuming Order is your order class and orderList is your item list
-        List<User> users= serviceCrudDao.findAll();
-        if (users == null)
-            users = new ArrayList<>();
-        for (User user : users) {
-            for (String str : items) {
-                if (str.equals(user.getId().toString())) {
-                    serviceCrudDao.delete(user.getId());
-                }
+
+        for (String str : items) {
+            try {
+                serviceCrudDao.delete(Long.parseLong(str));
+            } catch (Throwable e) {
+                e.printStackTrace();
             }
+
+
         }
+
         resp.sendRedirect(req.getContextPath() + "/admin/admin");
     }
 }

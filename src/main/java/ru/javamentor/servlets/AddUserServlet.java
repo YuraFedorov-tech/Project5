@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Properties;
 
-import static ru.javamentor.service.ServiceCrudDao.db;
 
 @WebServlet("/addUser")
 public class AddUserServlet extends HttpServlet {
@@ -30,13 +29,7 @@ public class AddUserServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         ServiceFactory serviceFactory = new ServiceFactory();
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream(getServletContext().getRealPath("/WEB-INF/classes/db.properties")));
-        } catch (IOException e) {
-            throw new IllegalArgumentException();
-        }
-        serviceCrudDao = serviceFactory.getServiceCrudDao(db, properties);
+        serviceCrudDao = serviceFactory.getServiceCrudDao();
     }
 
     @Override

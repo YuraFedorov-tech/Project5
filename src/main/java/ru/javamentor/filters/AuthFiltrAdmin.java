@@ -7,6 +7,8 @@ package ru.javamentor.filters;
  *
  */
 
+import ru.javamentor.model.User;
+
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.annotation.WebServlet;
@@ -25,17 +27,19 @@ public class AuthFiltrAdmin implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        HttpServletRequest req= (HttpServletRequest) servletRequest;
-        HttpServletResponse resp= (HttpServletResponse) servletResponse;
+        HttpServletRequest req = (HttpServletRequest) servletRequest;
+        HttpServletResponse resp = (HttpServletResponse) servletResponse;
 
-        HttpSession session=req.getSession(false);
+        HttpSession session = req.getSession(false);
 
 //       если сессия не была, или у сессии отсутствует атрибут user, перенаправляем пользователя на страницу с логином
-        if (session == null || session.getAttribute("admin") == null)
-                       servletRequest.getServletContext().getRequestDispatcher("/login").forward(req, resp);
-//        // отдаем запрос дальше в цепочку фильтров
-//       chain.doFilter(request, response);
-        filterChain.doFilter(req,resp);
+        if (session == null || session.getAttribute("user") == null)
+            servletRequest.getServletContext().getRequestDispatcher("/login").forward(req, resp);
+        User user = (User) session.getAttribute("user");
+        if (user.getRole().equals("admin"))
+            filterChain.doFilter(req, resp);
+        else
+            servletRequest.getServletContext().getRequestDispatcher("/login").forward(req, resp);
     }
 
     @Override
